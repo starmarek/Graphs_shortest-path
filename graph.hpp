@@ -20,8 +20,8 @@ public:
 	virtual void printGraph() const =  0; //prints graph representation into console
 	virtual int readFromFile() = 0; //fills graph based on input file
 	virtual void createInput(int t_startNode) const = 0; //creates artificial input file so user can copy it to
-													//graph-visualization tool
-
-	Graph(int t_V, int t_E, double t_density) : m_V(t_V), m_E(t_E), m_density(t_density) {}
+													//external graph-visualization tool
+	virtual ~Graph() {};
+	explicit Graph(int t_V, int t_E, double t_density) : m_V(t_V), m_E(t_E), m_density(t_density) {}
 	Graph() {}; //Unparametrized constructor, so program can crete a graph without initialization. This is beacause program
 };				//must be able to crete graph based on input file.

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <string> 
 
 #include "list_graph.hpp"
 #include "matrix_graph.hpp"

@@ -17,7 +17,7 @@ public:
 	const int& getNumber() const { return m_number; }; 
 	const int& getWeight() const { return m_weight; };
 
-	Node(int t_number, int t_weight, std::weak_ptr<Node> pt_previous, std::shared_ptr<Node> pt_next)
+	explicit Node(int t_number, int t_weight, std::weak_ptr<Node> pt_previous, std::shared_ptr<Node> pt_next)
 		:m_number(t_number), m_weight(t_weight), pm_previous(pt_previous), pm_next(pt_next) {}
 };
 
@@ -45,6 +45,6 @@ public:
 	bool detectIfExist(int t_guardNumber, int t_nodeNumber) const; //detects if given node exists
 	std::shared_ptr<Node> getHeadOfGuard(int index) const; //returns node that head pointer of given list guard 
 															//is pointing to
-	ListGraph(double t_V, double t_density);
+	explicit ListGraph(int t_V, double t_density);
 	ListGraph() : Graph() {};
 };

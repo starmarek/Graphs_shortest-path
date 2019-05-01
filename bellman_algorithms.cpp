@@ -5,10 +5,10 @@ static int  neg_infinity = -1000000;
 
 
 //prints to console and to just created output file the result of bellmanFord algorithm
-void finalSolution(int t_dist[], int t_n, int t_startNode) {
+void finalSolution(std::string dupa[], int t_dist[], int t_n, int t_startNode) {
 
 	std::ofstream file("Output.txt");
-
+	
 	std::cout << std::string(20, '-') << "\n   FinalSolution\n\n";
 	std::cout << "The starting node was -> " << t_startNode << "\n\n";
 
@@ -17,17 +17,23 @@ void finalSolution(int t_dist[], int t_n, int t_startNode) {
 
 	for (int i = 0; i < t_n; ++i) {
 		if (t_dist[i] == neg_infinity) {
-			std::cout << i << "->" << "-inf" << "\n";
-			file << i << "->" << "-inf" << "\n";
+			std::cout << i << "->" << "-inf\n";
+			file << i << "->" << "-inf\n";
+			continue;
 		}
 		else if (t_dist[i] == infinity) {
-			std::cout << i << "->" << "inf" << "\n";
-			file << i << "->" << "inf" << "\n";
+			std::cout << i << "->" << "inf\n";
+			file << i << "->" << "inf\n";
+			continue;
 		}
 		else {
-			std::cout << i << "->" << t_dist[i] << "\n";
-			file << i << "->" << t_dist[i] << "\n";
+			std::cout << i << "->" << t_dist[i];
+			file << i << "->" << t_dist[i];
 		}
+		std::cout << "   The shortest path: " << dupa[i] << i;
+		
+		std::cout << std::endl;
+		file << std::endl;
 	}
 	std::cout << std::endl;
 	file.close();
@@ -37,19 +43,20 @@ void finalSolution(int t_dist[], int t_n, int t_startNode) {
 //bellmanFord for adjencyList
 double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_printSolution) {
 
+	std::string* storePath = new std::string[t_graph->getV()];
+
 	auto t_start = std::chrono::high_resolution_clock::now(); //start clock
 
 	int* storeDistance = new int[t_graph->getV()];
-
+	
 	for (int iCell = 0; iCell < t_graph->getV(); ++iCell) {
 
-		storeDistance[iCell] = infinity; //infinity
+		storeDistance[iCell] = infinity;
 	}
 
 	storeDistance[t_startNode] = 0;
 
 	for (int i = 1; i < t_graph->getV(); ++i) {
-		std::cout << i << "\n";
 		for (int j = 0; j < t_graph->getV(); ++j) {
 
 			std::shared_ptr<const Node> tmp = t_graph->getHeadOfGuard(j);
@@ -62,6 +69,11 @@ double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_p
 
 				if (storeDistance[u] + weight < storeDistance[v]) {
 					storeDistance[v] = storeDistance[u] + weight;
+					
+					if (t_printSolution) {
+						storePath[v].clear();
+						storePath[v].append(storePath[u] + std::to_string(u) + "->");
+					}
 				}
 				tmp = tmp->pm_next;
 
@@ -103,7 +115,7 @@ double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_p
 	}
 	auto t_end = std::chrono::high_resolution_clock::now(); //stop clock
 
-	if (t_printSolution) finalSolution(std::move(storeDistance), t_graph->getV(), t_startNode);
+	if (t_printSolution) finalSolution(std::move(storePath), std::move(storeDistance), t_graph->getV(), t_startNode);
 	delete[] storeDistance;
 	return std::chrono::duration<double, std::milli>(t_end - t_start).count(); //return the time difference
 }
@@ -111,6 +123,8 @@ double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_p
 
 //bellmanFord for adjencyMatrix
 double bellmanFord(std::shared_ptr<MatrixGraph> t_graph, int t_startNode, bool t_printSolution) {
+	
+	std::string* storePath = new std::string[t_graph->getV()];
 
 	auto t_start = std::chrono::high_resolution_clock::now(); //start clock
 
@@ -134,6 +148,11 @@ double bellmanFord(std::shared_ptr<MatrixGraph> t_graph, int t_startNode, bool t
 
 					if (storeDistance[u] + weight < storeDistance[v]) {
 						storeDistance[v] = storeDistance[u] + weight;
+
+						if (t_printSolution) {
+							storePath[v].clear();
+							storePath[v].append(storePath[u] + std::to_string(u) + "->");
+						}
 					}
 				}
 			}
@@ -175,7 +194,7 @@ double bellmanFord(std::shared_ptr<MatrixGraph> t_graph, int t_startNode, bool t
 	}
 	auto t_end = std::chrono::high_resolution_clock::now(); //stop clock
 
-	if (t_printSolution) finalSolution(std::move(storeDistance), t_graph->getV(), t_startNode);
+	if (t_printSolution) finalSolution(std::move(storePath), std::move(storeDistance), t_graph->getV(), t_startNode);
 	delete[] storeDistance;
 	return std::chrono::duration<double, std::milli>(t_end - t_start).count(); //return the time difference
 }
