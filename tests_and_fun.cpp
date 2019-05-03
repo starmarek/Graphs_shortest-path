@@ -3,26 +3,30 @@
 #include "bellman_algorithms.hpp"
 
 
+//function that conducts test
+//it is templated with representation of graph. Arguments that are passed:
+//@loops - how many times the algorithm will solve objects with the same parameters(the more the more accurate outcome)
+//@verTab,@densTab - parameters of objects that will be created 
 template<typename T>
 std::ostream& tests(std::ostream& file, int (&vertTab)[5], double (&densTab)[4], int loops) {
 	
-	for (int vertices : vertTab) {
-		for (double density : densTab) {
+	for (double density : densTab) { //for each density
+		for (int vertices : vertTab) { //for each amount of vertices
 			double sum = 0;
-			for (int iLoops = 0; iLoops < loops; ++iLoops) {
+			for (int iLoops = 0; iLoops < loops; ++iLoops) { //as many times as loops variable was set
 
-				std::shared_ptr<T> graph = std::make_shared<T>(vertices, density);
-				int startNode = rand() % vertices;
+				std::shared_ptr<T> graph = std::make_shared<T>(vertices, density); //creating appropriate object
+				int startNode = rand() % vertices; //generating rand starting node
 
-				graph->fillGraph(true);
+				graph->fillGraph(false); //fill graph with loops possibility
 
-				sum += bellmanFord(std::move(graph), startNode, false);
+				sum += bellmanFord(std::move(graph), startNode, false); //bellman returning time of execution
 				std::cout << (iLoops * 100 / loops) + 1 << "%" << "\r" << std::flush;
 			}
-			file << sum / loops << " ";
-			std::cout << density << " DENSITY DONE!" << std::endl;
+			file << sum / loops << " "; //saving the average
+			std::cout << vertices << " VERTICES DONE!" << std::endl;
 		}
-		std::cout << "\n" << vertices << " VERTICES DONE!\n" << std::endl;
+		std::cout << "\n" << density << " DENISTY DONE!\n" << std::endl;
 	}
 	file << "\n";
 
@@ -39,10 +43,13 @@ int main() {
 
 	// TEST ZONE //
 	if (testZone) {
-
-		int vertTab[5] = { 10, 20, 30, 40, 50 };
-		double densTab[4] = { 0.25, 0.5, 0.75, 1 };
-		int loops = 50;
+		
+		/////////////////////////
+		// changeable variables//
+		int vertTab[5] = { 5, 10, 15, 25, 30 }; //amounts of vertices to be tested
+		double densTab[4] = { 0.25, 0.5, 0.75, 1}; //densities to be tested
+		int loops = 100;		// how many times the algorithm will solve objects with the same parameters
+		/////////////////////////
 
 		std::ofstream file("OutputTimes.txt");
 		if (!file.is_open()) {
@@ -51,9 +58,9 @@ int main() {
 			return 1;
 		}
 
-		tests<ListGraph>(file, vertTab, densTab, loops);
+		tests<ListGraph>(file, vertTab, densTab, loops); //testing for List
 		std::cout << "LIST DONE\n" << std::endl;
-		tests<MatrixGraph>(file, vertTab, densTab, loops);
+		tests<MatrixGraph>(file, vertTab, densTab, loops);	//testing for Matrix
 		std::cout << "MATRIX DONE" << std::endl;
 
 		file.close();
@@ -63,41 +70,45 @@ int main() {
 
 
 	// FUN ZONE //
-	typedef MatrixGraph ActualGraph;
-	bool useFile = true;
-	bool allowLoops = false;
-	int vertices = 5;
-	double density = 1;
-	int startNode = 2;
+
+	/////////////////////////
+	// changeable variables//
+	typedef	ListGraph ActualGraph; //graph representation
+	bool useFile = false;	//input from file (Input.txt)
+	bool allowLoops = false;	//if loops from node to the same node should be created
+	int vertices = 3;		//amount of vertices
+	double density = 0.75;	//density of graph
+	int startNode = 0;		//starting node for bellmanFord
+	/////////////////////////
 
 	std::shared_ptr<ActualGraph> graph;
 
-	if (useFile) {
+	if (useFile) { //if input from file
 		std::shared_ptr<ActualGraph> tmp = std::make_shared<ActualGraph>();
 		graph = tmp;
 		try {
-			startNode = tmp->readFromFile();
+			startNode = tmp->readFromFile(); //if inputed correctly there will be no exception
 		}
 		catch (const char* msg) {
 			std::cerr << msg << std::flush;
 			return 1;
 		}
 	}
-	else {
+	else { //if random graph
 		std::shared_ptr<ActualGraph> tmp = std::make_shared<ActualGraph>(vertices, density);
 		graph = tmp;
-		tmp->fillGraph(allowLoops);
+		tmp->fillGraph(allowLoops); //random fill
 	}
 
-	graph->printGraph();
+	graph->printGraph(); 
 	try {
-		if (!useFile) graph->createInput(startNode);
+		if (!useFile) graph->createInput(startNode); //if created succesfully there will be no exception
 	}
 	catch(const char* msg) {
 		std::cerr << msg << std::flush;
 		return 1;
 	}
-	bellmanFord(std::move(graph), startNode, true);
+	bellmanFord(std::move(graph), startNode, true); //solving with bellman ford
 
 	return 0;
 }

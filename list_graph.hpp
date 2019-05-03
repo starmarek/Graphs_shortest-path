@@ -3,7 +3,7 @@
 #include "graph.hpp"
 
 //represents node of graph as an element of doubly linked list
-struct	Node  {
+struct	Node {
 
 private:
 

@@ -23,5 +23,5 @@ public:
 													//external graph-visualization tool
 	virtual ~Graph() {};
 	explicit Graph(int t_V, int t_E, double t_density) : m_V(t_V), m_E(t_E), m_density(t_density) {}
-	Graph() {}; //Unparametrized constructor, so program can crete a graph without initialization. This is beacause program
-};				//must be able to crete graph based on input file.
+	Graph() {}; //Unparametrized constructor, so program can crete a graph without initialization. 
+};				//This is beacause program must be able to crete graph based on the input file infomations.

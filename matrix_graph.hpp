@@ -4,8 +4,8 @@
 
 class MatrixGraph : public Graph {
 
-	std::unique_ptr<std::unique_ptr<int[]>[]> matrix; //dynamic array of dynamic arrays; main container of graph
-
+	std::unique_ptr<std::unique_ptr<int[]>[]> matrix; //dynamic array of dynamic arrays; 
+														//main container of graph
 public:
 	void fillGraph(bool allowLoops) const override;
 	void printGraph() const override;

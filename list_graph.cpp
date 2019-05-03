@@ -2,7 +2,7 @@
 
 
 ListGraph::ListGraph(int t_V, double t_density)
-	:Graph(t_V, static_cast<int>(t_density)* t_V* (t_V - 1), t_density), //the t_E (edges) is an official formula to be calculated
+	:Graph(t_V, static_cast<int>(t_density* t_V* (t_V - 1)), t_density), //the t_E (edges) is an official formula to be calculated
 	prgm_guards(std::move(std::shared_ptr<ListGuard[]>(new ListGuard[t_V]))) {		//depending on density and vertices
 
 	//fill guard array with null pointers
@@ -47,12 +47,14 @@ void ListGraph::fillGraph(bool allowLoops) const {
 
 	if (m_density == 1) {  //full graph case
 		for (int iGuard = 0; iGuard < m_V; ++iGuard) { //for each guard
-			for (int jNode = iGuard+1; jNode < m_V; ++jNode) { //with every iteration number of added nodes is getting
-				int foo_weight = rand() % 20 - 2;
-				while (foo_weight == 0) {
-					foo_weight = rand() % 20 - 2;
+			for (int jNode = 0; jNode < m_V; ++jNode) { //connect this guard with every other node
+				if (iGuard != jNode) { //to avoid loops to the same node
+					int foo_weight = rand() % 20 - 1;
+					while (foo_weight == 0) {
+						foo_weight = rand() % 20 - 1;
+					}
+					addNodeEnd(jNode, foo_weight, iGuard); 
 				}
-				addNodeEnd(jNode, foo_weight, iGuard);   //smaller -> look full graph rules
 			}
 		}
 	}
@@ -67,9 +69,9 @@ void ListGraph::fillGraph(bool allowLoops) const {
 			
 			if (!detectIfExist(guardNode, nodeNode)) {
 
-				int foo_weight = rand() % 20 - 2;
+				int foo_weight = rand() % 20 - 1;
 				while (foo_weight == 0) {
-					foo_weight = rand() % 20 - 2;
+					foo_weight = rand() % 20 - 1;
 				}
 				
 				if (guardNode != nodeNode) {
@@ -93,9 +95,11 @@ void ListGraph::printGraph() const {
 
 	for (int iGuard = 0; iGuard < m_V; ++iGuard) {
 		
+		//number of guard
 		std::cout << iGuard;
 		std::shared_ptr<Node> tmp = prgm_guards[iGuard].pm_head;
 		
+		//as long as there is a connection, print it
 		while (tmp != nullptr) {
 			std::cout << "->" << "[" << tmp->getNumber() << "|" << tmp->getWeight() << "]";
 			tmp = tmp->pm_next;
@@ -134,7 +138,7 @@ int ListGraph::readFromFile() {
 	return start; //return starting node
 }
 
-
+//the same as martixGraph
 void ListGraph::createInput(int t_startNode) const {
 
 	std::ofstream file("CreatedInput.txt");
