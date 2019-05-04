@@ -1,12 +1,12 @@
 #include "bellman_algorithms.hpp"
 
-static int  infinity = 1000000; //because of the small interval in which weight of the edge can fit
-static int  neg_infinity = -1000000;	//it is ok to set inf to the one million. If you want to make this
+static int  s_infinity = 1000000; //because of the small interval in which weight of the edge can be created
+static int  s_neg_infinity = -1000000;	//it is ok to set inf to the one million. If you want to make this
 										//interval bigger, you should also change this static variable to a bigger one
+										//otherwise program might not work properly for bigger number of vertices
 
-
-//prints to console and to just created output file the result of bellmanFord algorithm
-void finalSolution(std::string dupa[], int t_dist[], int t_n, int t_startNode) {
+//prints to console and to just created file (Output.txt) the result of bellmanFord algorithm
+void finalSolution(std::string t_pathArr[], int t_dist[], int t_n, int t_startNode) {
 
 	std::ofstream file("Output.txt");
 	
@@ -18,12 +18,12 @@ void finalSolution(std::string dupa[], int t_dist[], int t_n, int t_startNode) {
 
 	for (int i = 0; i < t_n; ++i) {
 		 
-		if (t_dist[i] == neg_infinity) {
+		if (t_dist[i] == s_neg_infinity) {
 			std::cout << i << "->" << "-inf\n";
 			file << i << "->" << "-inf\n";
-			continue; //continue so program wont print path to this node (look at the end of the lop)
+			continue; //continue so program wont print path to this node (look at the end of the loop)
 		}
-		else if (t_dist[i] == infinity) {
+		else if (t_dist[i] == s_infinity) {
 			std::cout << i << "->" << "inf\n";
 			file << i << "->" << "inf\n";
 			continue; //the same story right there
@@ -33,10 +33,44 @@ void finalSolution(std::string dupa[], int t_dist[], int t_n, int t_startNode) {
 			std::cout << i << "->" << t_dist[i];
 			file << i << "->" << t_dist[i];
 		}
-		//printing shortest path stored in std::string object
-		std::cout << "   The shortest path: " << dupa[i] << i;
-		file << "   The shortest path: " << dupa[i] << i;
+
+		// following two blocks of (ifs) printing shortest path stored in std::string object
+
+		//first block: regarding number of source node
+		if (i < 10) {
+			std::cout << "   ";
+			file << "   ";
+		}
+		else if (i < 100) {
+			std::cout << "  ";
+			file << "  ";
+		}
+		else {
+			std::cout << " ";
+			file << " ";
+		}
 		
+		//second block: regarding shortest distance
+		if ((t_dist[i] >= 100 && t_dist[i] < 1000) || (-100 > t_dist[i]  && t_dist[i] <= -10)) {
+		
+			std::cout << " The shortest path: " << t_pathArr[i] << i;
+			file << " The shortest path: " << t_pathArr[i] << i;
+		}
+		else if (0 <= t_dist[i] && t_dist[i] < 10) {
+
+			std::cout << "   The shortest path: " << t_pathArr[i] << i;
+			file << "   The shortest path: " << t_pathArr[i] << i;
+		}
+		else if ((t_dist[i] >= 10 && t_dist[i] < 100) || (-10 < t_dist[i] && t_dist[i] < 0)) {
+
+			std::cout << "  The shortest path: " << t_pathArr[i] << i;
+			file << "  The shortest path: " << t_pathArr[i] << i;
+		}
+		else { //in case of emergency add another interval: (-1000,-100] && [1000,10000)
+			
+			std::cout << "The shortest path: " << t_pathArr[i] << i;
+			file << "The shortest path: " << t_pathArr[i] << i;
+		}
 		std::cout << std::endl;
 		file << std::endl;
 	}
@@ -56,68 +90,49 @@ double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_p
 	
 	for (int iCell = 0; iCell < t_graph->getV(); ++iCell) {
 
-		storeDistance[iCell] = infinity; //init all distances with inf
+		storeDistance[iCell] = s_infinity; //init all distances with inf
 	}
 
 	storeDistance[t_startNode] = 0; //and source one with 0
 
 	for (int i = 1; i < t_graph->getV(); ++i) { //relax edges v-1 times
-		for (int j = 0; j < t_graph->getV(); ++j) { //for all guards
+		for (int j = 0; j < t_graph->getE(); ++j) { //for all edges
 
-			std::shared_ptr<const Node> tmp = t_graph->getHeadOfGuard(j);
+			int u = t_graph->getStruct()[j].source;
+			int v = t_graph->getStruct()[j].dest;
+			int weight = t_graph->getStruct()[j].weight;
 
-			while (tmp) { //as long as current node exists
-
-				int u = j;
-				int v = tmp->getNumber();
-				int weight = tmp->getWeight();
-
-				if (storeDistance[u] + weight < storeDistance[v]) { //checing if shorter path is found
-					storeDistance[v] = storeDistance[u] + weight;
+			if (storeDistance[u] + weight < storeDistance[v]) { //checing if shorter path is found
+				storeDistance[v] = storeDistance[u] + weight;
 					
-					if (t_printSolution) { //if user want a solution to be printed than store path 
+				if (t_printSolution) { //if user want a solution to be printed then store path 
 						
-						storePath[v].clear();
-						storePath[v].append(storePath[u] + std::to_string(u) + "->");
-					}
+					storePath[v].clear();
+					storePath[v].append(storePath[u] + std::to_string(u) + "->");
 				}
-				tmp = tmp->pm_next; //going to the next node in the list
 			}
-
 		}
 	}
 
 	//checking for negative cycles right now
 	for (int i = 1; i < t_graph->getV(); ++i) {
-		for (int j = 0; j < t_graph->getV(); ++j) {
+		for (int j = 0; j < t_graph->getE(); ++j) {
+			
+			int u = t_graph->getStruct()[j].source;
+			int v = t_graph->getStruct()[j].dest;
+			int weight = t_graph->getStruct()[j].weight;
+			if (storeDistance[u] + weight < storeDistance[v]) {
 
-			std::shared_ptr<const Node> tmp = t_graph->getHeadOfGuard(j);
-
-			if (!tmp && storeDistance[j] > infinity/2) storeDistance[j] = infinity; //after first part of the algorithm
+				if (storeDistance[u] > s_infinity/2) storeDistance[u] = s_infinity;  //protection from adding negative inf 
+				else storeDistance[v] = s_neg_infinity;				//when the node is disconnected from the source anyway
+			}
+			else if (storeDistance[u] > s_infinity/2) storeDistance[u] = s_infinity;  //after first part of the algorithm
 						//if there was a negative cycle, and this (j) node is disconnected from the source then distances
 						//are going to be corrupted and instead of infinity (1000000) there will be something like 9999992. 
 						//thats why we need to manually set it to infinity. This is done by detecting > inf/2 so the the corrupted
-						//distance sholud be interpreted correctly and not confused with huge (correct) distance. Its also in 
-						//the middle so huge corruption won't mess it up either. Thats why its best to distinguish by 
-						//the middle event.
-			while (tmp) {
-
-				int u = j;
-				int v = tmp->getNumber();
-				int weight = tmp->getWeight();
-				if (storeDistance[u] + weight < storeDistance[v]) {
-
-					if (storeDistance[u] > infinity/2) storeDistance[u] = infinity;  //this time, it is just a protection 
-											//before adding negative inf when the node is disconnected from the source anyway
-					else storeDistance[v] = neg_infinity;
-
-				}
-				else if (storeDistance[u] > infinity/2) storeDistance[u] = infinity;  //the same as the (if) before (while loop)
-										//but this time in case of existing nodes in this guard. The other (if) was intentionally
-										//before (while), because it would have never be executed and 
-										//would have missed one case when it was needed to change to infinity
-				tmp = tmp->pm_next;
-			}
+						//distance sholud be interpreted correctly and not confused with huge (correct) distance. On the other
+						//hand corrupted distance can also reach huge negative amount and mess it up either way. Thats why its 						
+						//best to distinguish this event by the middle event.
 		}
 	}
 	auto t_end = std::chrono::high_resolution_clock::now(); //stop clock
@@ -134,13 +149,13 @@ double bellmanFord(std::shared_ptr<MatrixGraph> t_graph, int t_startNode, bool t
 	
 	std::string* storePath = new std::string[t_graph->getV()];
 
-	auto t_start = std::chrono::high_resolution_clock::now(); //start clock
+	auto t_start = std::chrono::high_resolution_clock::now(); 
 
 	int* storeDistance = new int[t_graph->getV()];
 
 	for (int iCell = 0; iCell < t_graph->getV(); ++iCell) {
 
-		storeDistance[iCell] = infinity; //infinity
+		storeDistance[iCell] = s_infinity;
 	}
 
 	storeDistance[t_startNode] = 0;
@@ -153,8 +168,8 @@ double bellmanFord(std::shared_ptr<MatrixGraph> t_graph, int t_startNode, bool t
 				int v = w;
 				int weight = t_graph->getWeight(j, w);
 				if (storeDistance[u] + weight < storeDistance[v]) {
+					
 					storeDistance[v] = storeDistance[u] + weight;
-
 					if (t_printSolution) {
 
 						storePath[v].clear();
@@ -168,26 +183,22 @@ double bellmanFord(std::shared_ptr<MatrixGraph> t_graph, int t_startNode, bool t
 		for (int j = 0; j < t_graph->getV(); ++j) {
 			for (int w = 0; w < t_graph->getV(); ++w) {
 
-				int foo_weight = t_graph->getWeight(j, w);
-			
-				if (storeDistance[j] > infinity / 2) storeDistance[j] = infinity;
-
 				int u = j;
 				int v = w;
-				int weight = foo_weight;
+				int weight = t_graph->getWeight(j, w);
 				if (storeDistance[u] + weight < storeDistance[v]) {
 				
-					if (storeDistance[u] > infinity / 2) storeDistance[u] = infinity;
-					else if (weight == infinity) continue; //if this node(j) have no connection with node(w)
-					else storeDistance[v] = neg_infinity;
+					if (storeDistance[u] > s_infinity / 2) storeDistance[u] = s_infinity;
+					else if (weight == s_infinity) continue; //if this node(j) have no connection with node(w)
+					else storeDistance[v] = s_neg_infinity;
 				}
-				else if (storeDistance[u] > infinity/2) storeDistance[u] = infinity;	
+				else if (storeDistance[u] > s_infinity/2) storeDistance[u] = s_infinity;	
 			}
 		}
 	}
-	auto t_end = std::chrono::high_resolution_clock::now(); //stop clock
+	auto t_end = std::chrono::high_resolution_clock::now(); 
 
 	if (t_printSolution) finalSolution(std::move(storePath), std::move(storeDistance), t_graph->getV(), t_startNode);
 	delete[] storeDistance;
-	return std::chrono::duration<double, std::milli>(t_end - t_start).count(); //return the time difference
+	return std::chrono::duration<double, std::milli>(t_end - t_start).count(); 
 }
