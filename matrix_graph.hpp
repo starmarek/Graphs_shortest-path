@@ -2,6 +2,9 @@
 
 #include "graph.hpp" 
 
+#include <cstdlib>
+#include <memory>
+
 
 class MatrixGraph : public Graph {
 

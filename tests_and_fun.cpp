@@ -37,7 +37,7 @@ int main() {
 
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	bool testZone = true; // YOUR CHOICE OF ZONE
+	bool testZone = false; // YOUR CHOICE OF ZONE
 	
 
 	// TEST ZONE //
@@ -77,7 +77,7 @@ int main() {
 	/////////////////////////
 	// changeable variables//
 	typedef	ListGraph ActualGraph; //graph representation
-	bool useFile = false;	//input from file (Input.txt)
+	bool useFile = true;	//input from file (Input.txt)
 	bool allowLoops = true;	//if loops from node to the same node should be created
 	int vertices = 4;		//amount of vertices
 	double density = 0.5;	//density of graph

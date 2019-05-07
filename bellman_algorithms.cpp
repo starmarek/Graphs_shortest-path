@@ -21,8 +21,8 @@ void finalSolution(std::string t_pathArr[], int t_dist[], int t_n, int t_startNo
 		if (t_dist[i] == s_neg_infinity) {
 			std::cout << i << "->" << "-inf\n";
 			file << i << "->" << "-inf\n";
-			continue; //continue so program wont print path to this node (look at the end of the loop)
-		}
+			continue; //continue so program wont print path to this node (look at the end of the loop for actual
+		}																//printing)
 		else if (t_dist[i] == s_infinity) {
 			std::cout << i << "->" << "inf\n";
 			file << i << "->" << "inf\n";
@@ -66,7 +66,7 @@ void finalSolution(std::string t_pathArr[], int t_dist[], int t_n, int t_startNo
 			std::cout << "  The shortest path: " << t_pathArr[i] << i;
 			file << "  The shortest path: " << t_pathArr[i] << i;
 		}
-		else { //in case of emergency add another interval: (-1000,-100] && [1000,10000)
+		else { //in case of emergency add another interval: (-1000,-100] || [1000,10000)
 			
 			std::cout << "The shortest path: " << t_pathArr[i] << i;
 			file << "The shortest path: " << t_pathArr[i] << i;
@@ -123,8 +123,8 @@ double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_p
 			int weight = t_graph->getStruct()[j].weight;
 			if (storeDistance[u] + weight < storeDistance[v]) {
 
-				if (storeDistance[u] > s_infinity/2) storeDistance[u] = s_infinity;  //protection from adding negative inf 
-				else storeDistance[v] = s_neg_infinity;				//when the node is disconnected from the source anyway
+				if (storeDistance[u] > s_infinity/2) storeDistance[u] = s_infinity;  //protection from adding negative inf- 
+				else storeDistance[v] = s_neg_infinity;				//-when the node is disconnected from the source anyway
 			}
 			else if (storeDistance[u] > s_infinity/2) storeDistance[u] = s_infinity;  //after first part of the algorithm
 						//if there was a negative cycle, and this (j) node is disconnected from the source then distances
@@ -132,7 +132,7 @@ double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_p
 						//thats why we need to manually set it to infinity. This is done by detecting > inf/2 so the the corrupted
 						//distance sholud be interpreted correctly and not confused with huge (correct) distance. On the other
 						//hand corrupted distance can also reach huge negative amount and mess it up either way. Thats why its 						
-						//best to distinguish this event by the middle event.
+						//best to distinguish this event by the middle value of infinity.
 		}
 	}
 	auto t_end = std::chrono::high_resolution_clock::now(); //stop clock
@@ -140,6 +140,7 @@ double bellmanFord(std::shared_ptr<ListGraph> t_graph, int t_startNode, bool t_p
 	//prinitng solution if user wanted to
 	if (t_printSolution) finalSolution(std::move(storePath), std::move(storeDistance), t_graph->getV(), t_startNode);
 	delete[] storeDistance;
+	delete[] storePath;
 	return std::chrono::duration<double, std::milli>(t_end - t_start).count(); //return the time difference
 }
 
@@ -200,5 +201,6 @@ double bellmanFord(std::shared_ptr<MatrixGraph> t_graph, int t_startNode, bool t
 
 	if (t_printSolution) finalSolution(std::move(storePath), std::move(storeDistance), t_graph->getV(), t_startNode);
 	delete[] storeDistance;
+	delete[] storePath;
 	return std::chrono::duration<double, std::milli>(t_end - t_start).count(); 
 }

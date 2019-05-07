@@ -2,9 +2,9 @@
 
 static int s_infinity = 1000000; //should be the same as in bellmanAlogrithms.cpp
 
-static int s_balance_of_interval = -1; //balance for rand() int the fill method- interval is set
+static int s_balance_of_interval = -1; //balance for rand() in the fill method - interval is set
 										//to 20 digits (0 - 19) originally. Using this variable you 
-										//can manipulate it. For example setting (-1) interval will move to 
+										//can manipulate it. For example changing to (-1) interval will be set to 
 										//(-1 - 18)
 
 //constructor
@@ -131,7 +131,7 @@ const int MatrixGraph::readFromFile() {
 		return 1;
 	}
 
-	//attributes and matrix array initialization; start - starting node (not attribute)
+	//attributes and matrix array initialization; start -> starting node (not attribute)
 	int start, source, destination, weight;
 	file >> m_E >> m_V >> start;
 	matrix = std::make_unique<std::unique_ptr<int[]>[]>(m_V);
